@@ -1,5 +1,9 @@
 package org.example.DAOs;
 
+// All MySQL DAOs will extend (inherit from) this class in order to
+// gain the connection functionality, thus avoiding inclusion
+// of this code in every DAO class.
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
