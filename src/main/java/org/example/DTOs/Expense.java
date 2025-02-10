@@ -1,15 +1,22 @@
 package org.example.DTOs;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Expense {
     private int expenseId;
     private String title;
     private String category;
     private double amount;
-    private Date dateIncurred;
+    private LocalDate dateIncurred;
 
-    public Expense(int expenseId, String title, String category, double amount, Date dateIncurred) {
+    public Expense(int expenseId, String title, String category, double amount, LocalDate dateIncurred) {
         this.expenseId = expenseId;
+        this.title = title;
+        this.category = category;
+        this.amount = amount;
+        this.dateIncurred = dateIncurred;
+    }
+
+    public Expense(String title, String category, double amount, LocalDate dateIncurred) {
         this.title = title;
         this.category = category;
         this.amount = amount;
@@ -34,7 +41,7 @@ public class Expense {
         return amount;
     }
 
-    public Date getDateIncurred() {
+    public LocalDate getDateIncurred() {
         return dateIncurred;
     }
 
@@ -54,7 +61,7 @@ public class Expense {
         this.amount = amount;
     }
 
-    public void setDateIncurred(Date dateIncurred) {
+    public void setDateIncurred(LocalDate dateIncurred) {
         this.dateIncurred = dateIncurred;
     }
 

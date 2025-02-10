@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
+import java.sql.Date;
 
 public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
    @Override
@@ -26,6 +26,7 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
             String query = "SELECT * FROM expense";
             preparedStatement = connection.prepareStatement(query);
 
+            // execute query to get the result set
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 int expenseID = resultSet.getInt("expenseID");
@@ -34,7 +35,8 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
                 double amount = resultSet.getDouble("amount");
                 Date dateIncurred = resultSet.getDate("dateIncurred");
 
-                Expense expense = new Expense(expenseID, title, category, amount, dateIncurred);
+                // convert sql date to localDate before adding to expenseList
+                Expense expense = new Expense(expenseID, title, category, amount, dateIncurred.toLocalDate());
                 expenseList.add(expense);
             }
         } catch (SQLException e) {
@@ -70,6 +72,7 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
             String query = "SELECT SUM(amount) AS total FROM expense";
             preparedStatement = connection.prepareStatement(query);
 
+            // execute query to get the result set
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 total = resultSet.getDouble("total");
@@ -92,5 +95,41 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
             }
         }
         return total;
+    }
+
+    @Override
+    public void addExpense(Expense expense) throws DaoException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = this.getConnection();
+
+            String query = "INSERT INTO Expense (title, category, amount, dateIncurred) VALUES (?, ?, ?, ?)";
+            preparedStatement = connection.prepareStatement(query);
+
+            // set parameter values
+            preparedStatement.setString(1, expense.getTitle());
+            preparedStatement.setString(2, expense.getCategory());
+            preparedStatement.setDouble(3, expense.getAmount());
+            // convert localDate to sql date before inserting data
+            preparedStatement.setDate(4, Date.valueOf(expense.getDateIncurred()));
+
+            // execute update
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException("addExpense() " + e.getMessage());
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    freeConnection(connection);
+                }
+            } catch (SQLException e) {
+                throw new DaoException("addExpense() closing resources " + e.getMessage());
+            }
+        }
     }
 }

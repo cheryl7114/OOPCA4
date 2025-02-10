@@ -1,15 +1,21 @@
 package org.example.DTOs;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Income {
     private int incomeID;
     private String title;
     private double amount;
-    private Date dateEarned;
+    private LocalDate dateEarned;
 
-    public Income(int incomeID, String title, double amount, Date date) {
+    public Income(int incomeID, String title, double amount, LocalDate date) {
         this.incomeID = incomeID;
+        this.title = title;
+        this.amount = amount;
+        this.dateEarned = date;
+    }
+
+    public Income(String title, double amount, LocalDate date) {
         this.title = title;
         this.amount = amount;
         this.dateEarned = date;
@@ -29,7 +35,7 @@ public class Income {
         return amount;
     }
 
-    public Date getDateEarned() {
+    public LocalDate getDateEarned() {
         return dateEarned;
     }
 
@@ -45,7 +51,7 @@ public class Income {
         this.amount = amount;
     }
 
-    public void setDateEarned(Date dateEarned) {
+    public void setDateEarned(LocalDate dateEarned) {
         this.dateEarned = dateEarned;
     }
 
