@@ -57,4 +57,40 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
 
         return expenseList;
     }
+
+    @Override
+    public double totalSpend() throws DaoException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        double total = 0;
+
+        try {
+            connection = this.getConnection();
+            String query = "SELECT SUM(amount) AS total FROM expense";
+            preparedStatement = connection.prepareStatement(query);
+
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                total = resultSet.getDouble("total");
+            }
+        } catch (SQLException e) {
+            throw new DaoException("totalSpendResultSet() " + e.getMessage());
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    freeConnection(connection);
+                }
+            } catch (SQLException e) {
+                throw new DaoException("totalSpend() " + e.getMessage());
+            }
+        }
+        return total;
+    }
 }
