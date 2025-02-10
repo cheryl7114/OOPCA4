@@ -38,9 +38,9 @@ public class Expense {
         return dateIncurred;
     }
 
-//    public void setExpenseId(int expenseId) {
-//        this.expenseId = expenseId;
-//    }
+    public void setExpenseId(int expenseId) {
+        this.expenseId = expenseId;
+    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -60,7 +60,7 @@ public class Expense {
 
     @Override
     public String toString() {
-        return "Expense { id=" + expenseId + ", title=" + title + ", category="
-                + category + ", amount=" + amount + ", dateIncurred=" + dateIncurred + " }";
+        return "Expense { ID: " + expenseId + ", Title: " + title + ", Category: "
+                + category + ", Amount: " + amount + ", Date: " + dateIncurred + " }";
     }
 }

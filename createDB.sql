@@ -1,8 +1,9 @@
-DROP DATABASE IF EXISTS 'expenseTracker_CA4';
-CREATE DATABASE 'expenseTracker_CA4';
-USE 'expenseTracker_CA4';
-DROP TABLE IF EXISTS 'Expense';
-DROP TABLE IF EXISTS 'Income';
+DROP DATABASE IF EXISTS expenseTracker_CA4;
+CREATE DATABASE expenseTracker_CA4;
+USE expenseTracker_CA4;
+
+DROP TABLE IF EXISTS Expense;
+DROP TABLE IF EXISTS Income;
 
 CREATE TABLE Expense (
     expenseID INT AUTO_INCREMENT PRIMARY KEY,
