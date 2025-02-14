@@ -3,6 +3,11 @@ package org.example.BusinessObjects;
 import org.example.DAOs.MySqlExpenseDao;
 import org.example.DAOs.ExpenseDaoInterface;
 import org.example.DTOs.Expense;
+
+import org.example.DAOs.MySqlIncomeDao;
+import org.example.DAOs.IncomeDaoInterface;
+import org.example.DTOs.Income;
+
 import org.example.Exceptions.DaoException;
 
 import java.time.LocalDate;
@@ -14,13 +19,16 @@ import java.util.Scanner;
 public class App {
     public static void main(String[] args) throws DaoException {
         ExpenseDaoInterface expenseDao = new MySqlExpenseDao();
+        IncomeDaoInterface incomeDao = new MySqlIncomeDao();
         boolean exit = false;
         int choice;
         Scanner scanner = new Scanner(System.in);
 
         try {
             do { // loop until user chooses to exit
-                List <Expense> expenseList = expenseDao.loadAllExpenses();
+                // update income & expense list every loop
+                List<Expense> expenseList = expenseDao.loadAllExpenses();
+                List<Income> incomeList = incomeDao.loadAllIncome();
                 displayMenu(); // call displayMenu method
                 choice = choiceInput(scanner, 1,4);
 
@@ -39,6 +47,13 @@ public class App {
                 } else if (choice == 2) { // go to menu for income
                     incomeMenu();
                     choice = choiceInput(scanner, 1,3);
+
+                    if (choice == 1) {
+                        listAllIncome(incomeList);
+                        listTotalEarned(incomeDao);
+                    } else if (choice == 2) {
+
+                    }
                 } else if (choice == 3) {
 
                 } else if (choice == 4) {
@@ -205,4 +220,21 @@ public class App {
         }
         return false;
     }
+
+    public static void listAllIncome(List<Income> incomeList) throws DaoException {
+        if (incomeList.isEmpty()) {
+            System.out.println("\nNo income found!");
+        } else {
+            System.out.println();
+            for (Income inc : incomeList) {
+                System.out.println(inc);
+            }
+        }
+    }
+
+    public static void listTotalEarned(IncomeDaoInterface incomeDao) throws DaoException {
+        System.out.println("Total Earned: " + incomeDao.totalEarned());
+    }
+
+
 }

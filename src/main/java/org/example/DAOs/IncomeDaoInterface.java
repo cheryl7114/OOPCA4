@@ -8,4 +8,5 @@ import java.util.List;
 public interface IncomeDaoInterface {
      List<Income> loadAllIncome() throws DaoException;
      double totalEarned() throws DaoException;
+     void addIncome(Income income) throws DaoException;
 }

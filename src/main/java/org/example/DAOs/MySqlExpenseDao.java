@@ -118,7 +118,7 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
             // execute update
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DaoException("addAnExpense() " + e.getMessage());
+            throw new DaoException("addExpense() " + e.getMessage());
         } finally {
             try {
                 if (preparedStatement != null) {
@@ -128,7 +128,7 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
                     freeConnection(connection);
                 }
             } catch (SQLException e) {
-                throw new DaoException("addAnExpense() closing resources " + e.getMessage());
+                throw new DaoException("addExpense() closing resources " + e.getMessage());
             }
         }
     }
