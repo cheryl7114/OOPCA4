@@ -53,6 +53,8 @@ public class App {
                         listTotalEarned(incomeDao);
                     } else if (choice == 2) {
                         addAnIncome(incomeDao, scanner);
+                    } else if (choice == 3) {
+                        deleteAnIncome(incomeDao, scanner, incomeList);
                     }
                 } else if (choice == 3) {
 
@@ -68,12 +70,6 @@ public class App {
 
     public static void displayMenu() {
         System.out.println("\nWelcome to my expense tracker!");
-//        System.out.println("1. Show All Expenses & Total Spent");
-//        System.out.println("2. Add Expense");
-//        System.out.println("3. Delete Expense");
-//        System.out.println("4. Show All Income & Total Earned");
-//        System.out.println("5. Add Income");
-//        System.out.println("6. Delete Income");
         System.out.println("1. Expense Menu");
         System.out.println("2. Income Menu");
         System.out.println("3. Monthly Summary");
@@ -98,15 +94,10 @@ public class App {
     public static int choiceInput(Scanner scanner, int down, int up) {
         int choice;
         do { // loop until a valid choice is chosen
-            while (!scanner.hasNextInt()) { // check if input is not an integer
-                System.out.print("Invalid input. Make sure your input is a number: ");
-                scanner.next(); // consume invalid input
-            }
-
-            choice = scanner.nextInt();
+            choice = getValidInt(scanner);
 
             if (choice < down || choice > up) {
-                System.out.print("Please choose a valid option! Try again: ");
+                System.out.print("Please choose a valid option (" + down + "-" + up + ")! Try again: ");
             }
         } while (choice<down || choice>up);
 
@@ -148,23 +139,17 @@ public class App {
 
     public static void deleteAnExpense(ExpenseDaoInterface expenseDao, Scanner scanner, List<Expense> expenseList) throws DaoException {
         listAllExpenses(expenseList);
+        System.out.print("Enter Expense ID to delete: ");
         while (true) {
-            System.out.print("Enter Expense ID to delete: ");
-            if (scanner.hasNextInt()) {
-                int id = scanner.nextInt();
-//                scanner.nextLine(); // consume newline
-                boolean validID = checkValidExpenseID(id,expenseList);
+            int id = getValidInt(scanner);
+            boolean validID = checkValidExpenseID(id,expenseList);
 
-                if (validID) {
-                    expenseDao.deleteExpense(id);
-                    System.out.println("Expense deleted successfully!");
-                    break;
-                } else {
-                    System.out.println("The entered ID does not exist. Try again.");
-                }
+            if (validID) {
+                expenseDao.deleteExpense(id);
+                System.out.println("Expense deleted successfully!");
+                break;
             } else {
-                System.out.println("Invalid input. Please enter a valid number.");
-//                scanner.next(); // consume invalid input
+                System.out.println("The entered ID does not exist. Try again.");
             }
         }
     }
@@ -208,6 +193,32 @@ public class App {
         incomeDao.addIncome(income);
 
         System.out.println("Income added successfully!");
+    }
+
+    public static void deleteAnIncome(IncomeDaoInterface incomeDao, Scanner scanner, List<Income> incomeList) throws DaoException {
+        listAllIncome(incomeList);
+        System.out.print("Enter Income ID to delete: ");
+        while (true) {
+            int id = getValidInt(scanner);
+            boolean validID = checkValidIncomeID(id,incomeList);
+
+            if (validID) {
+                incomeDao.deleteIncome(id);
+                System.out.println("Income deleted successfully!");
+                break;
+            } else {
+                System.out.println("The entered ID does not exist. Try again.");
+            }
+        }
+    }
+
+    public static boolean checkValidIncomeID(int id, List<Income> incomeList) {
+        for (Income income : incomeList) {
+            if (income.getIncomeID() == id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static String getValidStringInput(String message, Scanner scanner) {
@@ -256,4 +267,23 @@ public class App {
         }
         return date;
     }
+
+    public static int getValidInt(Scanner scanner) {
+        int num;
+        while (true) {
+            if (scanner.hasNextInt()) {
+                num = scanner.nextInt();
+                scanner.nextLine(); // consume newline
+                if (num > 0) {
+                    return num;
+                } else {
+                    System.out.print("Input must be a positive number. Try again: ");
+                }
+            } else {
+                System.out.print("Invalid input. Please enter a valid number: ");
+                scanner.next(); // consume invalid input
+            }
+        }
+    }
+
 }

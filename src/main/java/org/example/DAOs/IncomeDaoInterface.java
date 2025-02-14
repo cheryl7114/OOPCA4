@@ -9,4 +9,5 @@ public interface IncomeDaoInterface {
      List<Income> loadAllIncome() throws DaoException;
      double totalEarned() throws DaoException;
      void addIncome(Income income) throws DaoException;
+     void deleteIncome(int id) throws DaoException;
 }
