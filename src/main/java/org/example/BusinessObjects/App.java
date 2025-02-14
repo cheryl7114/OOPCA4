@@ -130,57 +130,14 @@ public class App {
 
     public static void addAnExpense(ExpenseDaoInterface expenseDao, Scanner scanner) throws DaoException {
         scanner.nextLine();
-        String title;
-        do {
-            System.out.print("Expense title: ");
-            title = scanner.nextLine().trim();
-            if (title.isEmpty()) {
-                System.out.println("Title cannot be empty. Please enter a valid title.");
-            }
-        } while (title.isEmpty());
 
-        String category;
-        do {
-            System.out.print("Expense category: ");
-            category = scanner.nextLine().trim();
-            if (category.isEmpty()) {
-                System.out.println("Category cannot be empty. Please enter a valid category.");
-            }
-        } while (category.isEmpty());
+        // validate input before adding expense
+        String title = getValidStringInput("Expense title: ",scanner);
+        String category = getValidStringInput("Expense category: ",scanner);
+        double amount = getValidDouble(scanner);
+        LocalDate dateIncurred = getValidDate("Date incurred (YYYY-MM-DD): ", scanner);
 
-        double amount;
-        while (true) {
-            System.out.print("Amount: ");
-            if (scanner.hasNextDouble()) {
-                amount = scanner.nextDouble();
-                scanner.nextLine(); // consume newline
-                if (amount > 0) {
-                    break;
-                } else {
-                    System.out.println("Amount must be a positive number. Try again.");
-                }
-            } else {
-                System.out.println("Invalid amount. Please enter a valid number.");
-                scanner.next(); // consume invalid input
-            }
-        }
-
-        // referenced https://www.tpointtech.com/how-to-accept-date-in-java
-        LocalDate dateIncurred = null;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        while (dateIncurred == null) {
-            System.out.print("Date incurred (YYYY-MM-DD): ");
-            String dateStr = scanner.nextLine().trim();
-
-            try {
-                dateIncurred = LocalDate.parse(dateStr, formatter);
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date format. Please enter the date in YYYY-MM-DD format.");
-            }
-        }
-
-        // create Expense object
+        // create Expense object with input data
         Expense expense = new Expense(title, category, amount, dateIncurred);
 
         // add the expense to the database
@@ -238,48 +195,13 @@ public class App {
 
     public static void addAnIncome(IncomeDaoInterface incomeDao, Scanner scanner) throws DaoException {
         scanner.nextLine();
-        String title;
-        do {
-            System.out.print("Income title: ");
-            title = scanner.nextLine().trim();
-            if (title.isEmpty()) {
-                System.out.println("Title cannot be empty. Please enter a valid title.");
-            }
-        } while (title.isEmpty());
 
-        double amount;
-        while (true) {
-            System.out.print("Amount: ");
-            if (scanner.hasNextDouble()) {
-                amount = scanner.nextDouble();
-                scanner.nextLine(); // consume newline
-                if (amount > 0) {
-                    break;
-                } else {
-                    System.out.println("Amount must be a positive number. Try again.");
-                }
-            } else {
-                System.out.println("Invalid amount. Please enter a valid number.");
-                scanner.next(); // consume invalid input
-            }
-        }
+        // validate input before adding income
+        String title = getValidStringInput("Income title: ", scanner);
+        double amount = getValidDouble(scanner);
+        LocalDate dateEarned = getValidDate("Date earned (YYYY-MM-DD): ", scanner);
 
-        // referenced https://www.tpointtech.com/how-to-accept-date-in-java
-        LocalDate dateEarned = null;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        while (dateEarned == null) {
-            System.out.print("Date incurred (YYYY-MM-DD): ");
-            String dateStr = scanner.nextLine().trim();
-
-            try {
-                dateEarned = LocalDate.parse(dateStr, formatter);
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date format. Please enter the date in YYYY-MM-DD format.");
-            }
-        }
-
-        // create Income object
+        // create Income object with input data
         Income income = new Income(title, amount, dateEarned);
 
         // add the income to the database
@@ -288,5 +210,50 @@ public class App {
         System.out.println("Income added successfully!");
     }
 
+    public static String getValidStringInput(String message, Scanner scanner) {
+        String input;
+        do {
+            System.out.print(message);
+            input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                System.out.println("Input cannot be empty. Please enter a valid value.");
+            }
+        } while (input.isEmpty());
+        return input;
+    }
 
+    public static double getValidDouble(Scanner scanner) {
+        double amount;
+        while (true) {
+            System.out.print("Amount: ");
+            if (scanner.hasNextDouble()) {
+                amount = scanner.nextDouble();
+                scanner.nextLine(); // consume newline
+                if (amount > 0) {
+                    return amount;
+                } else {
+                    System.out.println("Amount must be a positive number. Try again.");
+                }
+            } else {
+                System.out.println("Invalid amount. Please enter a valid number.");
+                scanner.next(); // consume invalid input
+            }
+        }
+    }
+
+    public static LocalDate getValidDate(String message, Scanner scanner) {
+        // referenced https://www.tpointtech.com/how-to-accept-date-in-java
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = null;
+        while (date == null) {
+            System.out.print(message);
+            String dateStr = scanner.nextLine().trim();
+            try {
+                date = LocalDate.parse(dateStr, formatter);
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid date format. Please enter the date in YYYY-MM-DD format.");
+            }
+        }
+        return date;
+    }
 }
