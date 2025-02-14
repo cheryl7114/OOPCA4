@@ -104,7 +104,7 @@ public class MySqlIncomeDao extends MySqlDao implements IncomeDaoInterface {
         try {
             connection = this.getConnection();
 
-            String query = "INSERT INTO Income (title, amount, dateIncurred) VALUES (?, ?, ?)";
+            String query = "INSERT INTO Income (title, amount, dateEarned) VALUES (?, ?, ?)";
             preparedStatement = connection.prepareStatement(query);
 
             // set parameter values

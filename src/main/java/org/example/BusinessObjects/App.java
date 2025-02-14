@@ -52,7 +52,7 @@ public class App {
                         listAllIncome(incomeList);
                         listTotalEarned(incomeDao);
                     } else if (choice == 2) {
-
+                        addAnIncome(incomeDao, scanner);
                     }
                 } else if (choice == 3) {
 
@@ -181,7 +181,7 @@ public class App {
         }
 
         // create Expense object
-        Expense expense = new Expense(0, title, category, amount, dateIncurred);
+        Expense expense = new Expense(title, category, amount, dateIncurred);
 
         // add the expense to the database
         expenseDao.addExpense(expense);
@@ -234,6 +234,58 @@ public class App {
 
     public static void listTotalEarned(IncomeDaoInterface incomeDao) throws DaoException {
         System.out.println("Total Earned: " + incomeDao.totalEarned());
+    }
+
+    public static void addAnIncome(IncomeDaoInterface incomeDao, Scanner scanner) throws DaoException {
+        scanner.nextLine();
+        String title;
+        do {
+            System.out.print("Income title: ");
+            title = scanner.nextLine().trim();
+            if (title.isEmpty()) {
+                System.out.println("Title cannot be empty. Please enter a valid title.");
+            }
+        } while (title.isEmpty());
+
+        double amount;
+        while (true) {
+            System.out.print("Amount: ");
+            if (scanner.hasNextDouble()) {
+                amount = scanner.nextDouble();
+                scanner.nextLine(); // consume newline
+                if (amount > 0) {
+                    break;
+                } else {
+                    System.out.println("Amount must be a positive number. Try again.");
+                }
+            } else {
+                System.out.println("Invalid amount. Please enter a valid number.");
+                scanner.next(); // consume invalid input
+            }
+        }
+
+        // referenced https://www.tpointtech.com/how-to-accept-date-in-java
+        LocalDate dateEarned = null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        while (dateEarned == null) {
+            System.out.print("Date incurred (YYYY-MM-DD): ");
+            String dateStr = scanner.nextLine().trim();
+
+            try {
+                dateEarned = LocalDate.parse(dateStr, formatter);
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid date format. Please enter the date in YYYY-MM-DD format.");
+            }
+        }
+
+        // create Income object
+        Income income = new Income(title, amount, dateEarned);
+
+        // add the income to the database
+        incomeDao.addIncome(income);
+
+        System.out.println("Income added successfully!");
     }
 
 
