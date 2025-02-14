@@ -13,7 +13,7 @@ import java.sql.Date;
 
 public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
    @Override
-    public List<Expense> listAllExpenses() throws DaoException {
+    public List<Expense> loadAllExpenses() throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -40,7 +40,7 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
                 expenseList.add(expense);
             }
         } catch (SQLException e) {
-            throw new DaoException("listAllExpensesResultSet() " + e.getMessage());
+            throw new DaoException("loadAllExpensesResultSet() " + e.getMessage());
         } finally {
             try {
                 if (resultSet != null) {
@@ -53,7 +53,7 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
                     freeConnection(connection);
                 }
             } catch (SQLException e) {
-                throw new DaoException("listAllExpenses() " + e.getMessage());
+                throw new DaoException("loadAllExpenses() " + e.getMessage());
             }
         }
 
@@ -118,7 +118,7 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
             // execute update
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DaoException("addExpense() " + e.getMessage());
+            throw new DaoException("addAnExpense() " + e.getMessage());
         } finally {
             try {
                 if (preparedStatement != null) {
@@ -128,7 +128,38 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
                     freeConnection(connection);
                 }
             } catch (SQLException e) {
-                throw new DaoException("addExpense() closing resources " + e.getMessage());
+                throw new DaoException("addAnExpense() closing resources " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void deleteExpense(int id) throws DaoException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = this.getConnection();
+
+            String query = "DELETE FROM expense WHERE expenseID = ?";
+            preparedStatement = connection.prepareStatement(query);
+
+            preparedStatement.setInt(1, id); // set id based on id to delete
+
+            // execute update
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException("deleteExpense() " + e.getMessage());
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    freeConnection(connection);
+                }
+            } catch (SQLException e) {
+                throw new DaoException("deleteExpense() closing resources " + e.getMessage());
             }
         }
     }

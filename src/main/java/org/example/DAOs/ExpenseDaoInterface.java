@@ -7,7 +7,8 @@ import org.example.Exceptions.DaoException;
 import java.util.List;
 
 public interface ExpenseDaoInterface {
-    List<Expense> listAllExpenses() throws DaoException;
+    List<Expense> loadAllExpenses() throws DaoException;
     double totalSpend() throws DaoException;
     void addExpense(Expense expense) throws DaoException;
+    void deleteExpense(int id) throws DaoException;
 }
