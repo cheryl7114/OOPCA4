@@ -357,6 +357,7 @@ public class App {
         System.out.println("--------------------------------------");
         System.out.println("Total Income: " + totalIncome);
         System.out.println("Total Expenses: " + totalExpenditure);
-        System.out.println("Remaining Balance: " + totalLeftOver);
+        System.out.println("Remaining Balance: " + String.format("%.2f", totalLeftOver));
+
     }
 }
