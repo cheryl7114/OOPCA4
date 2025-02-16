@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface ExpenseDaoInterface {
     List<Expense> loadAllExpenses() throws DaoException;
+    List<Expense> loadAllExpenses(int year, int month) throws DaoException;
     double totalSpend() throws DaoException;
     void addExpense(Expense expense) throws DaoException;
     void deleteExpense(int id) throws DaoException;
-    List<Expense> loadExpensesByMonth(int year, int month) throws DaoException;
 }

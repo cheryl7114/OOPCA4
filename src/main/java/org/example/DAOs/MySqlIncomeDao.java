@@ -60,6 +60,55 @@ public class MySqlIncomeDao extends MySqlDao implements IncomeDaoInterface {
     }
 
     @Override
+    public List<Income> loadAllIncome(int year, int month) throws DaoException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        List<Income> incomeList = new ArrayList<>();
+
+        try {
+            // get connection using getConnection() method from MySqlDao.java
+            connection = this.getConnection();
+
+            String query = "SELECT * FROM income WHERE YEAR(dateEarned) = ? AND MONTH(dateEarned) = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, year);
+            preparedStatement.setInt(2, month);
+
+            // execute query to get the result set
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int incomeID = resultSet.getInt("incomeID");
+                String title = resultSet.getString("title");
+                double amount = resultSet.getDouble("amount");
+                Date dateEarned = resultSet.getDate("dateEarned");
+
+                // convert sql date to localDate before adding to expenseList
+                Income income = new Income(incomeID, title, amount, dateEarned.toLocalDate());
+                incomeList.add(income);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("loadAllIncomeResultSet(year,month) " + e.getMessage());
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    freeConnection(connection);
+                }
+            } catch (SQLException e) {
+                throw new DaoException("loadAllIncome(year,month) " + e.getMessage());
+            }
+        }
+
+        return incomeList;
+    }
+
+    @Override
     public double totalEarned() throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -160,54 +209,5 @@ public class MySqlIncomeDao extends MySqlDao implements IncomeDaoInterface {
                 throw new DaoException("deleteIncome() closing resources " + e.getMessage());
             }
         }
-    }
-
-    @Override
-    public List<Income> loadIncomeByMonth(int year, int month) throws DaoException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        List<Income> incomeList = new ArrayList<>();
-
-        try {
-            // get connection using getConnection() method from MySqlDao.java
-            connection = this.getConnection();
-
-            String query = "SELECT * FROM income WHERE YEAR(dateEarned) = ? AND MONTH(dateEarned) = ?";
-            preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, year);
-            preparedStatement.setInt(2, month);
-
-            // execute query to get the result set
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                int incomeID = resultSet.getInt("incomeID");
-                String title = resultSet.getString("title");
-                double amount = resultSet.getDouble("amount");
-                Date dateEarned = resultSet.getDate("dateEarned");
-
-                // convert sql date to localDate before adding to expenseList
-                Income income = new Income(incomeID, title, amount, dateEarned.toLocalDate());
-                incomeList.add(income);
-            }
-        } catch (SQLException e) {
-            throw new DaoException("loadIncomeByMonthResultSet() " + e.getMessage());
-        } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-                if (preparedStatement != null) {
-                    preparedStatement.close();
-                }
-                if (connection != null) {
-                    freeConnection(connection);
-                }
-            } catch (SQLException e) {
-                throw new DaoException("loadIncomeByMonth() " + e.getMessage());
-            }
-        }
-
-        return incomeList;
     }
 }
