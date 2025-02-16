@@ -12,7 +12,7 @@ import java.util.List;
 import java.sql.Date;
 
 public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
-   @Override
+    @Override
     public List<Expense> loadAllExpenses() throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -162,5 +162,56 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
                 throw new DaoException("deleteExpense() closing resources " + e.getMessage());
             }
         }
+    }
+
+    @Override
+    public List<Expense> loadExpensesByMonth(int year, int month) throws DaoException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        List<Expense> expenseList = new ArrayList<>();
+
+        try {
+            // get connection using getConnection() method from MySqlDao.java
+            connection = this.getConnection();
+
+            String query = "SELECT * FROM expense WHERE YEAR(dateIncurred) = ? AND MONTH(dateIncurred) = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, year);
+            preparedStatement.setInt(2, month);
+
+
+            // execute query to get the result set
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int expenseID = resultSet.getInt("expenseID");
+                String title = resultSet.getString("title");
+                String category = resultSet.getString("category");
+                double amount = resultSet.getDouble("amount");
+                Date dateIncurred = resultSet.getDate("dateIncurred");
+
+                // convert sql date to localDate before adding to expenseList
+                Expense expense = new Expense(expenseID, title, category, amount, dateIncurred.toLocalDate());
+                expenseList.add(expense);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("loadExpensesByMonthResultSet() " + e.getMessage());
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    freeConnection(connection);
+                }
+            } catch (SQLException e) {
+                throw new DaoException("loadExpensesByMonth() " + e.getMessage());
+            }
+        }
+
+        return expenseList;
     }
 }

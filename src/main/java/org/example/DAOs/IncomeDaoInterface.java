@@ -10,4 +10,5 @@ public interface IncomeDaoInterface {
      double totalEarned() throws DaoException;
      void addIncome(Income income) throws DaoException;
      void deleteIncome(int id) throws DaoException;
+     List<Income> loadIncomeByMonth(int year, int month) throws DaoException;
 }
