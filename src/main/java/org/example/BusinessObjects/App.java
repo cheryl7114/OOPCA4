@@ -22,43 +22,50 @@ public class App {
         IncomeDaoInterface incomeDao = new MySqlIncomeDao();
         boolean exit = false;
         int choice;
+        List<Expense> expenseList = expenseDao.loadAllExpenses();
+        List<Income> incomeList = incomeDao.loadAllIncome();
+        final int EXPENSE_MENU = 1;
+        final int INCOME_MENU = 2;
+        final int SUMMARY_MENU = 3;
+        final int EXIT_MENU = 4;
         Scanner scanner = new Scanner(System.in);
 
         try {
             do { // loop until user chooses to exit
-                // update income & expense list every loop
-                List<Expense> expenseList = expenseDao.loadAllExpenses();
-                List<Income> incomeList = incomeDao.loadAllIncome();
                 displayMenu(); // call displayMenu method
                 choice = choiceInput(scanner, 1,4);
 
-                if (choice == 1) { // go to menu for expenses
+                if (choice == EXPENSE_MENU) { // go to menu for expenses
                     expenseMenu();
                     choice = choiceInput(scanner, 1,3);
 
                     if (choice == 1) {
-                        listAllExpenses(expenseList);
+                        displayExpenses(expenseList);
                         listTotalSpend(expenseDao);
                     } else if (choice == 2) {
                         addAnExpense(expenseDao, scanner);
+                        expenseList = expenseDao.loadAllExpenses(); // update expenseList after modification
                     } else if (choice == 3) {
                         deleteAnExpense(expenseDao, scanner, expenseList);
+                        expenseList = expenseDao.loadAllExpenses(); // update expenseList after modification
                     }
-                } else if (choice == 2) { // go to menu for income
+                } else if (choice == INCOME_MENU) { // go to menu for income
                     incomeMenu();
                     choice = choiceInput(scanner, 1,3);
 
                     if (choice == 1) {
-                        listAllIncome(incomeList);
+                        displayIncome(incomeList);
                         listTotalEarned(incomeDao);
                     } else if (choice == 2) {
                         addAnIncome(incomeDao, scanner);
+                        incomeList = incomeDao.loadAllIncome(); // update incomeList after modification
                     } else if (choice == 3) {
                         deleteAnIncome(incomeDao, scanner, incomeList);
+                        incomeList = incomeDao.loadAllIncome(); // update incomeList after modification
                     }
-                } else if (choice == 3) {
-
-                } else if (choice == 4) {
+                } else if (choice == SUMMARY_MENU) {
+                    monthlySummary(incomeDao, expenseDao, scanner);
+                } else if (choice == EXIT_MENU) {
                     exit = true;
                     System.out.println("Bye!");
                 }
@@ -66,6 +73,7 @@ public class App {
         } catch (DaoException e) {
             e.printStackTrace();
         }
+        scanner.close();
     }
 
     public static void displayMenu() {
@@ -104,11 +112,11 @@ public class App {
         return choice;
     }
 
-    public static void listAllExpenses(List<Expense> expenseList) throws DaoException {
+    public static void displayExpenses(List<Expense> expenseList) throws DaoException {
+        System.out.println("\nExpense List:");
         if (expenseList.isEmpty()) {
-            System.out.println("\nNo expenses found!");
+            System.out.println("No expenses found!");
         } else {
-            System.out.println();
             for (Expense exp : expenseList) {
                 System.out.println(exp);
             }
@@ -116,12 +124,10 @@ public class App {
     }
 
     public static void listTotalSpend(ExpenseDaoInterface expenseDao) throws DaoException {
-        System.out.println("Total Spent: " + expenseDao.totalSpend());
+        System.out.println("Total Spent: " + String.format("%.2f", expenseDao.totalSpend()));
     }
 
     public static void addAnExpense(ExpenseDaoInterface expenseDao, Scanner scanner) throws DaoException {
-        scanner.nextLine();
-
         // validate input before adding expense
         String title = getValidStringInput("Expense title: ",scanner);
         String category = getValidStringInput("Expense category: ",scanner);
@@ -138,7 +144,7 @@ public class App {
     }
 
     public static void deleteAnExpense(ExpenseDaoInterface expenseDao, Scanner scanner, List<Expense> expenseList) throws DaoException {
-        listAllExpenses(expenseList);
+        displayExpenses(expenseList);
         System.out.print("Enter Expense ID to delete: ");
         while (true) {
             int id = getValidInt(scanner);
@@ -149,7 +155,7 @@ public class App {
                 System.out.println("Expense deleted successfully!");
                 break;
             } else {
-                System.out.println("The entered ID does not exist. Try again.");
+                System.out.print("The entered ID does not exist. Try again: ");
             }
         }
     }
@@ -163,11 +169,11 @@ public class App {
         return false;
     }
 
-    public static void listAllIncome(List<Income> incomeList) throws DaoException {
+    public static void displayIncome(List<Income> incomeList) throws DaoException {
+        System.out.println("\nIncome List:");
         if (incomeList.isEmpty()) {
-            System.out.println("\nNo income found!");
+            System.out.println("No income found!");
         } else {
-            System.out.println();
             for (Income inc : incomeList) {
                 System.out.println(inc);
             }
@@ -175,12 +181,10 @@ public class App {
     }
 
     public static void listTotalEarned(IncomeDaoInterface incomeDao) throws DaoException {
-        System.out.println("Total Earned: " + incomeDao.totalEarned());
+        System.out.println("Total Earned: " + String.format("%.2f", incomeDao.totalEarned()));
     }
 
     public static void addAnIncome(IncomeDaoInterface incomeDao, Scanner scanner) throws DaoException {
-        scanner.nextLine();
-
         // validate input before adding income
         String title = getValidStringInput("Income title: ", scanner);
         double amount = getValidDouble(scanner);
@@ -196,7 +200,7 @@ public class App {
     }
 
     public static void deleteAnIncome(IncomeDaoInterface incomeDao, Scanner scanner, List<Income> incomeList) throws DaoException {
-        listAllIncome(incomeList);
+        displayIncome(incomeList);
         System.out.print("Enter Income ID to delete: ");
         while (true) {
             int id = getValidInt(scanner);
@@ -207,7 +211,7 @@ public class App {
                 System.out.println("Income deleted successfully!");
                 break;
             } else {
-                System.out.println("The entered ID does not exist. Try again.");
+                System.out.print("The entered ID does not exist. Try again: ");
             }
         }
     }
@@ -255,17 +259,24 @@ public class App {
     public static LocalDate getValidDate(String message, Scanner scanner) {
         // referenced https://www.tpointtech.com/how-to-accept-date-in-java
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = null;
-        while (date == null) {
+        LocalDate date;
+        LocalDate currentDate = LocalDate.now();
+
+        while (true) {
             System.out.print(message);
             String dateStr = scanner.nextLine().trim();
             try {
                 date = LocalDate.parse(dateStr, formatter);
+
+                if (date.isAfter(currentDate)) {  // check if date is in the future
+                    System.out.println("The entered date cannot be in the future. Try again.");
+                } else {
+                    return date;
+                }
             } catch (DateTimeParseException e) {
                 System.out.println("Invalid date format. Please enter the date in YYYY-MM-DD format.");
             }
         }
-        return date;
     }
 
     public static int getValidInt(Scanner scanner) {
@@ -286,4 +297,66 @@ public class App {
         }
     }
 
+    public static int getValidYear(Scanner scanner) {
+        // referenced https://javabeat.net/get-current-year-java/#:~:text=In%20the%20main()%20method%2C%20first%2C%20we%20create%20an%20object,the%20current%20year%20in%20Java.
+        int currentYear = LocalDate.now().getYear();
+        int year;
+        while (true) {
+            if (scanner.hasNextInt()) {
+                year = scanner.nextInt();
+                scanner.nextLine(); // consume newline
+                if (year > 2000 && year <= currentYear) {  // ensure it's an acceptable year
+                    return year;
+                } else {
+                    System.out.print("Invalid year. Enter a year between 2000 and " + currentYear + ": ");
+                }
+            } else {
+                System.out.print("Invalid input. Please enter a valid year: ");
+                scanner.next(); // consume invalid input
+            }
+        }
+    }
+
+    public static int getValidMonth(Scanner scanner) {
+        int inputMonth;
+        int currentMonth = LocalDate.now().getMonthValue();
+        while (true) {
+            if (scanner.hasNextInt()) {
+                inputMonth = scanner.nextInt();
+                scanner.nextLine(); // consume newline
+                if (inputMonth < 1 || inputMonth > 12) {
+                    System.out.print("Invalid month. Please enter a number between 1 and 12: ");
+                } else if (inputMonth > currentMonth) {
+                    System.out.print("Input month exceeds current month. Try again: ");
+                } else {
+                    return inputMonth;
+                }
+            } else {
+                System.out.print("Invalid input. Please enter a number: ");
+                scanner.next(); // consume invalid input
+            }
+        }
+    }
+
+    public static void monthlySummary(IncomeDaoInterface incomeDao, ExpenseDaoInterface expenseDao, Scanner scanner) throws DaoException {
+        System.out.print("Enter year to check (e.g. 2025): ");
+        int year = getValidYear(scanner);
+        System.out.print("Enter month (1-12): ");
+        int month = getValidMonth(scanner);
+
+        List<Income> incomes = incomeDao.loadAllIncome(year, month);
+        List<Expense> expenses = expenseDao.loadAllExpenses(year, month);
+        displayIncome(incomes);
+        displayExpenses(expenses);
+
+        double totalIncome = incomeDao.totalEarned(year, month);
+        double totalExpenditure = expenseDao.totalSpend(year, month);
+        double totalLeftOver = totalIncome - totalExpenditure;
+
+        System.out.println("\nMonthly Report for " + year + "-" + month);
+        System.out.println("--------------------------------------");
+        System.out.println("Total Income: " + totalIncome);
+        System.out.println("Total Expenses: " + totalExpenditure);
+        System.out.println("Remaining Balance: " + totalLeftOver);
+    }
 }
