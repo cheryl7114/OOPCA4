@@ -10,6 +10,7 @@ public interface ExpenseDaoInterface {
     List<Expense> loadAllExpenses() throws DaoException;
     List<Expense> loadAllExpenses(int year, int month) throws DaoException;
     double totalSpend() throws DaoException;
+    double totalSpend(int year, int month) throws DaoException;
     void addExpense(Expense expense) throws DaoException;
     void deleteExpense(int id) throws DaoException;
 }

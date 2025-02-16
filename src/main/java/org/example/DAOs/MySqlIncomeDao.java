@@ -116,6 +116,7 @@ public class MySqlIncomeDao extends MySqlDao implements IncomeDaoInterface {
         double total = 0;
 
         try {
+            // get connection using getConnection() method from MySqlDao.java
             connection = this.getConnection();
             String query = "SELECT SUM(amount) AS total FROM income";
             preparedStatement = connection.prepareStatement(query);
@@ -146,11 +147,53 @@ public class MySqlIncomeDao extends MySqlDao implements IncomeDaoInterface {
     }
 
     @Override
+    public double totalEarned(int year, int month) throws DaoException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        double total = 0;
+
+        try {
+            // get connection using getConnection() method from MySqlDao.java
+            connection = this.getConnection();
+
+            String query = "SELECT SUM(amount) AS total FROM income WHERE YEAR(dateEarned) = ? AND MONTH(dateEarned) = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, year);
+            preparedStatement.setInt(2, month);
+
+            // execute query to get the result set
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                total = resultSet.getDouble("total");
+            }
+        } catch (SQLException e) {
+            throw new DaoException("totalEarnedResultSet(year,month) " + e.getMessage());
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    freeConnection(connection);
+                }
+            } catch (SQLException e) {
+                throw new DaoException("totalEarned(year,month) " + e.getMessage());
+            }
+        }
+        return total;
+    }
+
+    @Override
     public void addIncome(Income income) throws DaoException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
         try {
+            // get connection using getConnection() method from MySqlDao.java
             connection = this.getConnection();
 
             String query = "INSERT INTO Income (title, amount, dateEarned) VALUES (?, ?, ?)";
@@ -186,6 +229,7 @@ public class MySqlIncomeDao extends MySqlDao implements IncomeDaoInterface {
         PreparedStatement preparedStatement = null;
 
         try {
+            // get connection using getConnection() method from MySqlDao.java
             connection = this.getConnection();
 
             String query = "DELETE FROM income WHERE incomeID = ?";

@@ -119,9 +119,51 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
         double total = 0;
 
         try {
+            // get connection using getConnection() method from MySqlDao.java
             connection = this.getConnection();
             String query = "SELECT SUM(amount) AS total FROM expense";
             preparedStatement = connection.prepareStatement(query);
+
+            // execute query to get the result set
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                total = resultSet.getDouble("total");
+            }
+        } catch (SQLException e) {
+            throw new DaoException("totalSpendResultSet() " + e.getMessage());
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    freeConnection(connection);
+                }
+            } catch (SQLException e) {
+                throw new DaoException("totalSpend() " + e.getMessage());
+            }
+        }
+        return total;
+    }
+
+    @Override
+    public double totalSpend(int year, int month) throws DaoException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        double total = 0;
+
+        try {
+            // get connection using getConnection() method from MySqlDao.java
+            connection = this.getConnection();
+
+            String query = "SELECT SUM(amount) AS total FROM expense WHERE YEAR(dateIncurred) = ? AND MONTH(dateIncurred) = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, year);
+            preparedStatement.setInt(2, month);
 
             // execute query to get the result set
             resultSet = preparedStatement.executeQuery();
@@ -154,6 +196,7 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
         PreparedStatement preparedStatement = null;
 
         try {
+            // get connection using getConnection() method from MySqlDao.java
             connection = this.getConnection();
 
             String query = "INSERT INTO Expense (title, category, amount, dateIncurred) VALUES (?, ?, ?, ?)";
@@ -190,6 +233,7 @@ public class MySqlExpenseDao extends MySqlDao implements ExpenseDaoInterface {
         PreparedStatement preparedStatement = null;
 
         try {
+            // get connection using getConnection() method from MySqlDao.java
             connection = this.getConnection();
 
             String query = "DELETE FROM expense WHERE expenseID = ?";
